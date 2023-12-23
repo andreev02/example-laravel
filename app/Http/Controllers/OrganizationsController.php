@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Organization;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
@@ -24,6 +25,7 @@ class OrganizationsController extends Controller
                     'phone' => $organization->phone,
                     'city' => $organization->city,
                     'email' => $organization->email,
+                    'isCached' => Cache::has("organization_{$organization->id}"),
                 ]),
         ]);
     }
@@ -35,7 +37,7 @@ class OrganizationsController extends Controller
 
     public function store()
     {
-        Organization::create(
+        $organization = Organization::create(
             Request::validate([
                 'name' => ['required', 'max:100'],
                 'email' => ['nullable', 'max:50', 'email'],
@@ -46,6 +48,8 @@ class OrganizationsController extends Controller
                 'country' => ['nullable', 'max:2'],
             ])
         );
+
+        Cache::set("organization_{$organization->id}", json_encode($organization));
 
         return Redirect::route('organizations');
     }
@@ -82,6 +86,8 @@ class OrganizationsController extends Controller
                 'country' => ['nullable', 'max:2'],
             ])
         );
+
+        Cache::set("organization_{$organization->id}", json_encode($organization));
 
         return Redirect::back();
     }

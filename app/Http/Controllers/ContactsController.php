@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contact;
 use App\Models\Organization;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Validation\Rule;
@@ -27,6 +28,7 @@ class ContactsController extends Controller
                     'phone' => $contact->phone,
                     'city' => $contact->city,
                     'organization' => $contact->organization ? $contact->organization->only('name') : null,
+                    'isCached' => Cache::has("contact_{$contact->id}"),
                 ]),
         ]);
     }
@@ -44,7 +46,7 @@ class ContactsController extends Controller
 
     public function store()
     {
-        Contact::create(
+        $contact = Contact::create(
             Request::validate([
                 'first_name' => ['required', 'max:50'],
                 'last_name' => ['required', 'max:50'],
@@ -57,6 +59,8 @@ class ContactsController extends Controller
                 'country' => ['nullable', 'max:2'],
             ])
         );
+
+        Cache::set("contact_{$contact->id}", json_encode($contact));
 
         return Redirect::route('contacts');
     }
@@ -101,6 +105,8 @@ class ContactsController extends Controller
                 'country' => ['nullable', 'max:2'],
             ])
         );
+
+        Cache::set("contact_{$contact->id}", json_encode($contact));
 
         return Redirect::back();
     }
