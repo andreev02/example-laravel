@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, useForm, useRemember } from '@inertiajs/vue3'
+import { Head, Link, useForm } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
 defineProps({
@@ -18,10 +18,6 @@ const form = useForm({
   city: '',
   region: '',
   country: '',
-})
-
-useRemember({
-  form
 })
 
 function store() {
